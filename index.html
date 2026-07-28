@@ -528,9 +528,9 @@
       <div class="ic">⏰</div>
       <div>
         <div class="t1">作息 · 规律生活</div>
-        <div class="t2">早睡早起身体好</div>
+        <div class="t2">早睡早起 + 每日舞蹈</div>
       </div>
-      <div class="right">已完成 <b id="n-zuoxi">0</b>/2</div>
+      <div class="right">已完成 <b id="n-zuoxi">0</b>/3</div>
     </div>
     <div class="clock-row">
       <div class="clock-card">
@@ -561,6 +561,14 @@
       <div class="content">
         <div class="t1">🌙 晚上 9:00 准时睡觉</div>
         <div class="t2">8:30 开始洗漱 · 9:00 关灯睡觉</div>
+      </div>
+      <div class="tag">作息</div>
+    </div>
+    <div class="task" data-key="x3">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">💃 每日舞蹈基础练习 30 分钟</div>
+        <div class="t2">拉伸热身 · 基本功练习 · 舞蹈动作组合</div>
       </div>
       <div class="tag">作息</div>
     </div>
@@ -713,7 +721,7 @@
     shuxue: ['s1','s2'],
     yingyu: ['e1','e2'],
     huwai:  ['h1','h2'],
-    zuoxi:  ['x1','x2']
+    zuoxi:  ['x1','x2','x3']
   };
 
   function getDone() {
@@ -809,17 +817,79 @@
     }
   }
 
+  /* ===================== 小狗叫声音效 ===================== */
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+    return audioCtx;
+  }
+
+  function bark(times = 1, pitch = 1.0) {
+    try {
+      const ctx = getAudioCtx();
+      for (let i = 0; i < times; i++) {
+        const t = ctx.currentTime + i * 0.18;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(280 * pitch, t);
+        osc.frequency.exponentialRampToValueAtTime(180 * pitch, t + 0.08);
+        osc.frequency.exponentialRampToValueAtTime(120 * pitch, t + 0.15);
+        gain.gain.setValueAtTime(0.18, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.18);
+        osc.start(t); osc.stop(t + 0.2);
+      }
+    } catch(e) { /* 静默忽略 */ }
+  }
+
+  function happyBark() {
+    try {
+      const ctx = getAudioCtx();
+      // 欢快的叫声：高频短促
+      for (let i = 0; i < 3; i++) {
+        const t = ctx.currentTime + i * 0.12;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(350 + i * 40, t);
+        osc.frequency.exponentialRampToValueAtTime(200, t + 0.1);
+        gain.gain.setValueAtTime(0.15, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+        osc.start(t); osc.stop(t + 0.14);
+      }
+    } catch(e) {}
+  }
+
+  function whimper() {
+    try {
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(200, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(150, ctx.currentTime + 0.4);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.55);
+    } catch(e) {}
+  }
+
   /* ===================== 宠物动作 ===================== */
   function act(type) {
     if (state.pet.rewards <= 0) {
       showToast('请先完成一项学习任务');
       bubble('呜…先去做作业', 1500);
+      whimper();
       return;
     }
     state.pet.rewards--;
-    if (type === 'feed')  { state.pet.hunger = Math.min(100, state.pet.hunger+20); bubble('🍖 吃饱啦！'); }
-    if (type === 'walk')  { state.pet.happy  = Math.min(100, state.pet.happy+25); state.pet.energy = Math.max(0, state.pet.energy-10); bubble('🐕 散步好开心！'); }
-    if (type === 'play')  { state.pet.happy  = Math.min(100, state.pet.happy+15); state.pet.energy = Math.max(0, state.pet.energy-15); bubble('🎾 一起玩！'); }
+    if (type === 'feed')  { state.pet.hunger = Math.min(100, state.pet.hunger+20); bubble('🍖 吃饱啦！'); happyBark(); }
+    if (type === 'walk')  { state.pet.happy  = Math.min(100, state.pet.happy+25); state.pet.energy = Math.max(0, state.pet.energy-10); bubble('🐕 散步好开心！'); bark(2, 1.1); }
+    if (type === 'play')  { state.pet.happy  = Math.min(100, state.pet.happy+15); state.pet.energy = Math.max(0, state.pet.energy-15); bubble('🎾 一起玩！'); happyBark(); }
     if (type === 'sleep') { state.pet.energy = Math.min(100, state.pet.energy+30); bubble('💤 呼噜噜~'); }
     save();
     updateUI();
