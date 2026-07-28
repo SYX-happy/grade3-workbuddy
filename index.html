@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>三年级学习工作台</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="学习工作台">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6b8e3d">
+<meta name="description" content="三年级学习工作台 - 语文、数学、英语、早读、户外">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f6f3eb;
+    color: #2b2b2b;
+    min-height: 100vh;
+    display: flex;
+    min-width: 900px;
+  }
+
+  /* ================= 左侧栏 ================= */
+  .sidebar {
+    width: 220px;
+    background: #fbfaf6;
+    border-right: 1px solid #ebe6d6;
+    padding: 22px 0 20px;
+    position: sticky; top: 0; align-self: flex-start;
+    height: 100vh;
+  }
+  .sidebar .brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 18px 18px;
+    border-bottom: 1px solid #efeadd;
+    margin-bottom: 14px;
+  }
+  .sidebar .brand .logo {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg,#6b8e3d,#8aa84d);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px;
+  }
+  .sidebar .brand .text .t1 { font-size: 14px; font-weight: 700; }
+  .sidebar .brand .text .t2 { font-size: 11px; color: #999; }
+
+  .nav { display: flex; flex-direction: column; }
+  .nav .item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 18px;
+    cursor: pointer;
+    color: #5a5443;
+    font-size: 14px;
+    border-left: 3px solid transparent;
+  }
+  .nav .item:hover { background: #f3efe2; }
+  .nav .item.active {
+    background: #6b8e3d;
+    color: #fff;
+    border-left-color: #4f6f29;
+  }
+  .nav .item .ic { font-size: 16px; }
+  .nav .item .badge {
+    margin-left: auto;
+    font-size: 11px;
+    background: #fff; color: #6b8e3d;
+    padding: 2px 7px; border-radius: 10px;
+    font-weight: 600;
+  }
+  .nav .item.active .badge { background: #fff; color: #4f6f29; }
+
+  .sidebar .footer {
+    padding: 14px 18px 0;
+    font-size: 11px; color: #b0a98e;
+    line-height: 1.7;
+  }
+
+  /* ================= 主体 ================= */
+  .main {
+    flex: 1;
+    padding: 26px 36px 40px;
+    min-width: 0;
+  }
+  .main h1 {
+    font-size: 24px; font-weight: 700;
+    color: #2b2b2b;
+  }
+  .main .sub { font-size: 13px; color: #8a8576; margin-top: 4px; }
+  .main .date {
+    display: inline-block; margin-top: 10px;
+    font-size: 12px; color: #6b8e3d;
+    background: #eaf2dc; padding: 4px 10px; border-radius: 12px;
+  }
+
+  /* 进度 */
+  .progress-card {
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .progress-card .ring {
+    position: relative; width: 64px; height: 64px;
+  }
+  .progress-card .ring svg { transform: rotate(-90deg); }
+  .progress-card .ring .num {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: #6b8e3d;
+  }
+  .progress-card .info { flex: 1; }
+  .progress-card .info .t1 { font-size: 14px; font-weight: 600; }
+  .progress-card .info .t2 { font-size: 12px; color: #999; margin-top: 2px; }
+  .progress-card .info .bar {
+    height: 6px; background: #f0ece0; border-radius: 3px;
+    margin-top: 8px; overflow: hidden;
+  }
+  .progress-card .info .bar > div {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg,#6b8e3d,#8aa84d);
+    transition: width .4s;
+  }
+
+  /* 任务大区 */
+  .section {
+    margin-top: 22px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 18px 22px 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .section .head {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .section .head .ic {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px;
+  }
+  .section .head .t1 { font-size: 16px; font-weight: 700; }
+  .section .head .t2 { font-size: 12px; color: #999; margin-top: 2px; }
+  .section .head .right { margin-left: auto; font-size: 12px; color: #999; }
+  .section .head .right b { color: #6b8e3d; font-size: 14px; }
+
+  /* 主题色 */
+  .s-zaodu  .head .ic { background: linear-gradient(135deg,#e8a23a,#d6841c); }
+  .s-yuwen  .head .ic { background: linear-gradient(135deg,#e26b5e,#c14a3f); }
+  .s-shuxue .head .ic { background: linear-gradient(135deg,#5b8bd6,#3f6fbd); }
+  .s-yingyu .head .ic { background: linear-gradient(135deg,#6b8e3d,#8aa84d); }
+  .s-huwai  .head .ic { background: linear-gradient(135deg,#52a89a,#3b8a7c); }
+
+  /* 任务项 */
+  .task {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    border: 1.5px solid #f0ece0;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    background: #fbfaf6;
+    transition: all .15s;
+    cursor: pointer;
+  }
+  .task:hover { border-color: #d6cfa6; }
+  .task .ck {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: 2px solid #c8c2a8; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: #fff; flex-shrink: 0;
+  }
+  .task.done .ck { background: #6b8e3d; border-color: #6b8e3d; }
+  .task.done .ck::after { content: "✓"; }
+  .task.done .content .t1 { text-decoration: line-through; color: #b0a98e; }
+  .task .content { flex: 1; min-width: 0; }
+  .task .content .t1 { font-size: 14px; font-weight: 600; }
+  .task .content .t2 { font-size: 12px; color: #8a8576; margin-top: 3px; line-height: 1.5; }
+  .task .content .t2 b { color: #c14a3f; }
+  .task .tag {
+    font-size: 11px; padding: 3px 8px; border-radius: 8px;
+    background: #f0ece0; color: #6b5d3f; flex-shrink: 0;
+  }
+
+  /* ================= 右侧电子宠物 ================= */
+  .pet-panel {
+    width: 280px;
+    background: linear-gradient(180deg, #fff8e7 0%, #fff2d1 100%);
+    border-left: 1px solid #ebe6d6;
+    padding: 24px 18px;
+    height: 100vh;
+    position: sticky; top: 0; align-self: flex-start;
+    display: flex; flex-direction: column;
+  }
+  .pet-panel h3 {
+    text-align: center;
+    font-size: 16px; font-weight: 700;
+    color: #8a5a1a;
+  }
+  .pet-panel .sub-t {
+    text-align: center; font-size: 11px; color: #b08a4a;
+    margin-top: 2px;
+  }
+
+  /* 小狗画布 */
+  .pet-stage {
+    margin: 18px auto 12px;
+    width: 200px; height: 200px;
+    background: radial-gradient(ellipse at center bottom, #f5e3a8 0%, transparent 70%);
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pet-svg { width: 160px; height: 160px; }
+
+  /* 状态 */
+  .pet-stats {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-top: 6px;
+  }
+  .stat {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .stat:last-child { margin-bottom: 0; }
+  .stat .label { width: 48px; color: #8a5a1a; }
+  .stat .bar { flex: 1; height: 8px; background: #f5e9c8; border-radius: 4px; overflow: hidden; }
+  .stat .bar > div { height: 100%; border-radius: 4px; transition: width .5s; }
+  .stat .v { width: 32px; text-align: right; color: #8a5a1a; font-weight: 600; }
+
+  .s-hunger .bar > div { background: linear-gradient(90deg,#ff8a3d,#ffb84d); }
+  .s-happy  .bar > div { background: linear-gradient(90deg,#e26b5e,#ff9b8e); }
+  .s-energy .bar > div { background: linear-gradient(90deg,#5b8bd6,#8eb6ee); }
+
+  /* 按钮 */
+  .pet-actions {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-top: 12px;
+  }
+  .pet-actions button {
+    border: none; border-radius: 12px;
+    padding: 10px 8px;
+    font-size: 13px; font-weight: 600;
+    color: #fff; cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+  .pet-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .pet-actions .b-feed  { background: linear-gradient(135deg,#ff8a3d,#ffb84d); }
+  .pet-actions .b-walk  { background: linear-gradient(135deg,#52a89a,#7bc4b6); }
+  .pet-actions .b-play  { background: linear-gradient(135deg,#e26b5e,#ff9b8e); }
+  .pet-actions .b-sleep { background: linear-gradient(135deg,#5b8bd6,#8eb6ee); }
+  .pet-actions .ic { font-size: 18px; }
+
+  .pet-hint {
+    text-align: center; font-size: 11px; color: #b08a4a;
+    margin-top: 10px; line-height: 1.6;
+  }
+  .pet-bubble {
+    position: absolute; top: 8px; left: 50%;
+    transform: translateX(-50%);
+    background: #fff; padding: 6px 12px;
+    border-radius: 14px; font-size: 12px; color: #8a5a1a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    opacity: 0; transition: opacity .3s;
+    white-space: nowrap;
+  }
+  .pet-bubble.show { opacity: 1; }
+
+  /* 弹层 */
+  .toast {
+    position: fixed; left: 50%; top: 30%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.78); color: #fff;
+    padding: 12px 22px; border-radius: 24px;
+    font-size: 14px; z-index: 999;
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s;
+  }
+  .toast.show { opacity: 1; }
+  .toast.big {
+    font-size: 18px; padding: 18px 28px;
+    background: linear-gradient(135deg,#6b8e3d,#8aa84d);
+  }
+</style>
+</head>
+<body>
+
+<!-- 左侧栏 -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">学</div>
+    <div class="text">
+      <div class="t1">学习工作台</div>
+      <div class="t2">三年级 · 暑假版</div>
+    </div>
+  </div>
+  <div class="nav" id="nav">
+    <div class="item active" data-target="zaodu"><span class="ic">🌅</span>早读<span class="badge" id="b-zaodu">0/3</span></div>
+    <div class="item" data-target="yuwen"><span class="ic">📖</span>语文<span class="badge" id="b-yuwen">0/3</span></div>
+    <div class="item" data-target="shuxue"><span class="ic">🧮</span>数学<span class="badge" id="b-shuxue">0/2</span></div>
+    <div class="item" data-target="yingyu"><span class="ic">🌱</span>英语<span class="badge" id="b-yingyu">0/2</span></div>
+    <div class="item" data-target="huwai"><span class="ic">🏃</span>户外<span class="badge" id="b-huwai">0/2</span></div>
+  </div>
+  <div class="footer">
+    完成全部任务<br>即可喂食 / 遛弯 🐶
+  </div>
+</aside>
+
+<!-- 主体 -->
+<main class="main">
+  <h1>三年级 · 学习工作台</h1>
+  <div class="sub">每天完成左侧任务，就能照顾电子小狗</div>
+  <div class="date" id="today">2026年7月28日 · 周二</div>
+
+  <div class="progress-card">
+    <div class="ring">
+      <svg width="64" height="64">
+        <circle cx="32" cy="32" r="28" fill="none" stroke="#f0ece0" stroke-width="6"/>
+        <circle id="ring" cx="32" cy="32" r="28" fill="none" stroke="#6b8e3d" stroke-width="6"
+                stroke-dasharray="176" stroke-dashoffset="176" stroke-linecap="round"/>
+      </svg>
+      <div class="num" id="ring-num">0%</div>
+    </div>
+    <div class="info">
+      <div class="t1">今日学习进度</div>
+      <div class="t2" id="prog-text">已完成 0 / 12 项</div>
+      <div class="bar"><div id="bar"></div></div>
+    </div>
+  </div>
+
+  <!-- 早读 -->
+  <section class="section s-zaodu" id="sec-zaodu">
+    <div class="head">
+      <div class="ic">🌅</div>
+      <div>
+        <div class="t1">早读</div>
+        <div class="t2">清晨黄金 30 分钟，大声读出来</div>
+      </div>
+      <div class="right">已完成 <b id="n-zaodu">0</b>/3</div>
+    </div>
+    <div class="task" data-key="z1">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">📜 语文 / 文言文读 5 遍</div>
+        <div class="t2">推荐：课文古诗、<b>文言文</b>选段（每篇 5 遍）</div>
+      </div>
+      <div class="tag">早读</div>
+    </div>
+    <div class="task" data-key="z2">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">✍ 写作素材积累</div>
+        <div class="t2">好词好句摘抄 1 段 + 仿写一句话</div>
+      </div>
+      <div class="tag">早读</div>
+    </div>
+    <div class="task" data-key="z3">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">🌱 英语文章读 5 遍 + 单词复习 2 单元</div>
+        <div class="t2">新概念课文跟读 5 遍 · 单词本复习 <b>2 个单元</b></div>
+      </div>
+      <div class="tag">早读</div>
+    </div>
+  </section>
+
+  <!-- 语文 -->
+  <section class="section s-yuwen" id="sec-yuwen">
+    <div class="head">
+      <div class="ic">📖</div>
+      <div>
+        <div class="t1">语文 · 每日学习</div>
+        <div class="t2">字词 / 预习 / 练习</div>
+      </div>
+      <div class="right">已完成 <b id="n-yuwen">0</b>/3</div>
+    </div>
+    <div class="task" data-key="y1">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">🖊 字词练习</div>
+        <div class="t2">生字本听写 · 默写 · 造句（15 分钟）</div>
+      </div>
+      <div class="tag">语文</div>
+    </div>
+    <div class="task" data-key="y2">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">📚 每日预习 1 课</div>
+        <div class="t2">朗读课文 · 标自然段 · 圈出生字词</div>
+      </div>
+      <div class="tag">语文</div>
+    </div>
+    <div class="task" data-key="y3">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">📝 完成预习对应的练习册</div>
+        <div class="t2">课后题 · 看拼音写词语 · 阅读小练笔</div>
+      </div>
+      <div class="tag">语文</div>
+    </div>
+  </section>
+
+  <!-- 数学 -->
+  <section class="section s-shuxue" id="sec-shuxue">
+    <div class="head">
+      <div class="ic">🧮</div>
+      <div>
+        <div class="t1">数学 · 每日学习</div>
+        <div class="t2">预习 / 计算 双线并行</div>
+      </div>
+      <div class="right">已完成 <b id="n-shuxue">0</b>/2</div>
+    </div>
+    <div class="task" data-key="s1">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">📘 学霸预习 + 练习册</div>
+        <div class="t2">课本例题预习 · 完成练习册 1 课</div>
+      </div>
+      <div class="tag">数学</div>
+    </div>
+    <div class="task" data-key="s2">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">➕ 每日计算 20 题</div>
+        <div class="t2">口算 / 竖式 / 简便运算 · 限时 10 分钟</div>
+      </div>
+      <div class="tag">数学</div>
+    </div>
+  </section>
+
+  <!-- 英语 -->
+  <section class="section s-yingyu" id="sec-yingyu">
+    <div class="head">
+      <div class="ic">🌱</div>
+      <div>
+        <div class="t1">英语 · 每日学习</div>
+        <div class="t2">两天一课新概念（单双课配套）</div>
+      </div>
+      <div class="right">已完成 <b id="n-yingyu">0</b>/2</div>
+    </div>
+    <div class="task" data-key="e1" data-day-pair>
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">📖 新概念 1 课 <span id="e1-day" style="color:#6b8e3d;font-weight:600"></span></div>
+        <div class="t2" id="e1-desc">单日：新课 · 双日：复习前一天（两天一课）</div>
+      </div>
+      <div class="tag">英语</div>
+    </div>
+    <div class="task" data-key="e2">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">🐣 每日新学 3 个单词</div>
+        <div class="t2">抄写 · 造句 · 配图记忆 · 家长听写</div>
+      </div>
+      <div class="tag">英语</div>
+    </div>
+  </section>
+
+  <!-- 户外 -->
+  <section class="section s-huwai" id="sec-huwai">
+    <div class="head">
+      <div class="ic">🏃</div>
+      <div>
+        <div class="t1">户外 · 强身健体</div>
+        <div class="t2">早上 1 小时 + 晚上 2 小时</div>
+      </div>
+      <div class="right">已完成 <b id="n-huwai">0</b>/2</div>
+    </div>
+    <div class="task" data-key="h1">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">☀ 早上外出 1 小时</div>
+        <div class="t2">晨跑 / 跳绳 / 小区散步 · 晒太阳</div>
+      </div>
+      <div class="tag">户外</div>
+    </div>
+    <div class="task" data-key="h2">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">🏸 晚上外出 2 小时（含羽毛球训练 1 小时）</div>
+        <div class="t2">晚饭后散步 / <b>羽毛球训练 1 小时</b> / 自由活动</div>
+      </div>
+      <div class="tag">户外</div>
+    </div>
+  </section>
+</main>
+
+<!-- 右侧电子宠物 -->
+<aside class="pet-panel">
+  <h3>🐶 我的电子小狗</h3>
+  <div class="sub-t">完成学习 · 照顾它</div>
+
+  <div class="pet-stage">
+    <div class="pet-bubble" id="bubble">汪汪~</div>
+
+    <!-- SVG 小狗 -->
+    <svg class="pet-svg" viewBox="0 0 200 200" id="pet">
+      <!-- 影子 -->
+      <ellipse cx="100" cy="180" rx="55" ry="6" fill="#000" opacity="0.12"/>
+
+      <!-- 尾巴 -->
+      <g id="tail">
+        <path d="M150,130 Q175,115 170,90" stroke="#d6a76b" stroke-width="10"
+              stroke-linecap="round" fill="none"/>
+      </g>
+
+      <!-- 后腿 -->
+      <ellipse cx="80" cy="160" rx="14" ry="18" fill="#c8985c"/>
+      <ellipse cx="120" cy="160" rx="14" ry="18" fill="#c8985c"/>
+
+      <!-- 身体 -->
+      <ellipse cx="100" cy="120" rx="45" ry="38" fill="#e6b87a"/>
+      <ellipse cx="100" cy="125" rx="32" ry="22" fill="#f4d4a0"/>
+
+      <!-- 前腿 -->
+      <ellipse cx="75" cy="158" rx="10" ry="14" fill="#c8985c"/>
+      <ellipse cx="125" cy="158" rx="10" ry="14" fill="#c8985c"/>
+
+      <!-- 头 -->
+      <g id="head">
+        <!-- 耳朵 -->
+        <ellipse cx="65" cy="78" rx="14" ry="22" fill="#a8763b" transform="rotate(-20 65 78)"/>
+        <ellipse cx="135" cy="78" rx="14" ry="22" fill="#a8763b" transform="rotate(20 135 78)"/>
+        <!-- 脸 -->
+        <ellipse cx="100" cy="90" rx="42" ry="38" fill="#e6b87a"/>
+        <ellipse cx="100" cy="100" rx="32" ry="26" fill="#f4d4a0"/>
+
+        <!-- 眼睛 -->
+        <g id="eyes">
+          <circle cx="85" cy="88" r="5" fill="#2b2b2b"/>
+          <circle cx="115" cy="88" r="5" fill="#2b2b2b"/>
+          <circle cx="86" cy="86" r="1.5" fill="#fff"/>
+          <circle cx="116" cy="86" r="1.5" fill="#fff"/>
+        </g>
+
+        <!-- 鼻子 -->
+        <ellipse cx="100" cy="100" rx="5" ry="4" fill="#2b2b2b"/>
+        <!-- 嘴 -->
+        <path d="M100,105 Q92,115 88,110 M100,105 Q108,115 112,110" stroke="#2b2b2b" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- 腮红 -->
+        <circle cx="75" cy="100" r="4" fill="#ff9b8e" opacity="0.6"/>
+        <circle cx="125" cy="100" r="4" fill="#ff9b8e" opacity="0.6"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="pet-stats">
+    <div class="stat s-hunger">
+      <span class="label">🍖 饱腹</span>
+      <div class="bar"><div id="hunger" style="width:50%"></div></div>
+      <span class="v" id="v-hunger">50</span>
+    </div>
+    <div class="stat s-happy">
+      <span class="label">😊 心情</span>
+      <div class="bar"><div id="happy" style="width:50%"></div></div>
+      <span class="v" id="v-happy">50</span>
+    </div>
+    <div class="stat s-energy">
+      <span class="label">⚡ 体力</span>
+      <div class="bar"><div id="energy" style="width:50%"></div></div>
+      <span class="v" id="v-energy">50</span>
+    </div>
+  </div>
+
+  <div class="pet-actions">
+    <button class="b-feed" onclick="act('feed')">
+      <span class="ic">🍖</span>喂食
+    </button>
+    <button class="b-walk" onclick="act('walk')">
+      <span class="ic">🐕</span>遛弯
+    </button>
+    <button class="b-play" onclick="act('play')">
+      <span class="ic">🎾</span>玩耍
+    </button>
+    <button class="b-sleep" onclick="act('sleep')">
+      <span class="ic">💤</span>睡觉
+    </button>
+  </div>
+
+  <div class="pet-hint" id="pet-hint">
+    每完成 1 项学习任务<br>解锁一次照顾小狗的机会
+  </div>
+</aside>
+
+<div class="toast" id="toast">完成啦！</div>
+
+<script>
+  /* ===================== 数据 & 持久化 ===================== */
+  const STORAGE_KEY = 'g3-workbuddy-v2';
+  const state = {
+    tasks: {},        // key -> bool
+    pet: { hunger: 50, happy: 50, energy: 50, rewards: 0 }
+  };
+
+  function load() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      try { Object.assign(state, JSON.parse(raw)); } catch(e){}
+    }
+  }
+  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+  /* ===================== 任务 ===================== */
+  const groups = {
+    zaodu:  ['z1','z2','z3'],
+    yuwen:  ['y1','y2','y3'],
+    shuxue: ['s1','s2'],
+    yingyu: ['e1','e2'],
+    huwai:  ['h1','h2']
+  };
+
+  function getDone() {
+    return Object.values(state.tasks).filter(v => v).length;
+  }
+  function getTotal() {
+    return Object.keys(groups).reduce((a,k) => a + groups[k].length, 0);
+  }
+
+  function updateUI() {
+    // 任务勾选
+    Object.keys(state.tasks).forEach(k => {
+      const el = document.querySelector(`[data-key="${k}"]`);
+      if (el) el.classList.toggle('done', state.tasks[k]);
+    });
+
+    // 每个分组的进度
+    Object.keys(groups).forEach(g => {
+      const total = groups[g].length;
+      const done  = groups[g].filter(k => state.tasks[k]).length;
+      document.getElementById('b-'+g).textContent = `${done}/${total}`;
+      const n = document.getElementById('n-'+g);
+      if (n) n.textContent = done;
+    });
+
+    // 总进度
+    const done = getDone(), total = getTotal();
+    const pct = total ? Math.round(done*100/total) : 0;
+    document.getElementById('prog-text').textContent = `已完成 ${done} / ${total} 项`;
+    document.getElementById('bar').style.width = pct + '%';
+    document.getElementById('ring-num').textContent = pct + '%';
+    const ring = document.getElementById('ring');
+    const C = 2 * Math.PI * 28;
+    ring.setAttribute('stroke-dasharray', C);
+    ring.setAttribute('stroke-dashoffset', C * (1 - pct/100));
+
+    // 宠物面板
+    document.getElementById('hunger').style.width  = state.pet.hunger + '%';
+    document.getElementById('happy').style.width   = state.pet.happy  + '%';
+    document.getElementById('energy').style.width  = state.pet.energy + '%';
+    document.getElementById('v-hunger').textContent  = state.pet.hunger;
+    document.getElementById('v-happy').textContent   = state.pet.happy;
+    document.getElementById('v-energy').textContent  = state.pet.energy;
+    document.getElementById('pet-hint').innerHTML = state.pet.rewards > 0
+      ? `🌟 你还有 <b>${state.pet.rewards}</b> 次照顾小狗的机会`
+      : `完成学习任务后<br>就可以照顾小狗啦~`;
+
+    // 宠物表情
+    const mood = state.pet.happy > 70 ? '汪汪! 谢谢你~' :
+                 state.pet.happy > 40 ? '汪~' : '呜…';
+    bubble(mood, 1500);
+  }
+
+  function toggle(el) {
+    const item = el.parentElement;
+    const key  = item.dataset.key;
+    const wasDone = state.tasks[key];
+    state.tasks[key] = !state.tasks[key];
+
+    // 从未完成 -> 完成：奖励 1 次
+    if (!wasDone && state.tasks[key]) {
+      state.pet.rewards = (state.pet.rewards || 0) + 1;
+      bubble('汪汪~ 完成啦！', 1500);
+      showToast('🎉 任务完成 +1 奖励！', true);
+    } else {
+      bubble('呜…取消了吗', 1200);
+    }
+    save();
+    updateUI();
+  }
+
+  /* ===================== 宠物动作 ===================== */
+  function act(type) {
+    if (state.pet.rewards <= 0) {
+      showToast('请先完成一项学习任务');
+      bubble('呜…先去做作业', 1500);
+      return;
+    }
+    state.pet.rewards--;
+
+    if (type === 'feed')  { state.pet.hunger = Math.min(100, state.pet.hunger+20); bubble('🍖 吃饱啦！'); }
+    if (type === 'walk')  { state.pet.happy  = Math.min(100, state.pet.happy+25); state.pet.energy = Math.max(0, state.pet.energy-10); bubble('🐕 散步好开心！'); }
+    if (type === 'play')  { state.pet.happy  = Math.min(100, state.pet.happy+15); state.pet.energy = Math.max(0, state.pet.energy-15); bubble('🎾 一起玩！'); }
+    if (type === 'sleep') { state.pet.energy = Math.min(100, state.pet.energy+30); bubble('💤 呼噜噜~'); }
+
+    save();
+    updateUI();
+    showToast('✓ 已照顾小狗');
+
+    // 摇尾巴 + 跳一下
+    bounce();
+  }
+
+  /* ===================== 动画 ===================== */
+  function bubble(text, dur = 1300) {
+    const b = document.getElementById('bubble');
+    b.textContent = text;
+    b.classList.add('show');
+    clearTimeout(bubble._t);
+    bubble._t = setTimeout(() => b.classList.remove('show'), dur);
+  }
+  function bounce() {
+    const pet = document.getElementById('pet');
+    pet.style.transition = 'transform .2s';
+    pet.style.transform = 'translateY(-10px) scale(1.05)';
+    setTimeout(() => pet.style.transform = 'translateY(0) scale(1)', 200);
+  }
+
+  function showToast(msg, big = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (big ? ' big' : '');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => t.className = 'toast', big ? 2000 : 1300);
+  }
+
+  /* ===================== 左侧导航滚动 ===================== */
+  document.querySelectorAll('#nav .item').forEach(it => {
+    it.addEventListener('click', () => {
+      document.querySelectorAll('#nav .item').forEach(x => x.classList.remove('active'));
+      it.classList.add('active');
+      const t = document.getElementById('sec-' + it.dataset.target);
+      if (t) t.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+
+  /* ===================== 新概念单双日 ===================== */
+  function setupNCE() {
+    const d = new Date();
+    const day = d.getDate();
+    const isNew = (day % 2 === 1);   // 单日新课，双日复习
+    const tag = document.getElementById('e1-day');
+    const desc = document.getElementById('e1-desc');
+    if (isNew) {
+      tag.textContent = '（今天 · 新课）';
+      desc.innerHTML  = '今天学新课：跟读 · 讲解 · 完成课后练习';
+    } else {
+      tag.textContent = '（今天 · 复习）';
+      desc.innerHTML  = '今天复习昨天的课：背诵 · 听写 · 造句';
+    }
+  }
+
+  /* ===================== 初始化 ===================== */
+  load();
+  setupNCE();
+  updateUI();
+
+  // 每天自动衰减一点点
+  setInterval(() => {
+    state.pet.hunger = Math.max(0, state.pet.hunger - 0.5);
+    state.pet.happy  = Math.max(0, state.pet.happy  - 0.3);
+    state.pet.energy = Math.max(0, state.pet.energy - 0.2);
+    save(); updateUI();
+  }, 30000);
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(function() {
+    console.log('SW registered');
+  }).catch(function(e) {
+    console.log('SW failed:', e);
+  });
+}
+</script>
+</body>
+</html>
