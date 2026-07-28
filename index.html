@@ -155,6 +155,7 @@
   .s-yingyu .head .ic { background: linear-gradient(135deg,#6b8e3d,#8aa84d); }
   .s-huwai  .head .ic { background: linear-gradient(135deg,#52a89a,#3b8a7c); }
   .s-zuoxi  .head .ic { background: linear-gradient(135deg,#9b7ec4,#7b5ea7); }
+  .s-jiawu  .head .ic { background: linear-gradient(135deg,#e89a5e,#d67a3c); }
 
   /* 任务项 */
   .task {
@@ -198,20 +199,6 @@
   .clock-card .clock-ic { font-size: 28px; }
   .clock-card .clock-info .ct1 { font-size: 14px; font-weight: 700; color: #5a3d8a; }
   .clock-card .clock-info .ct2 { font-size: 12px; color: #8a7aaa; margin-top: 2px; }
-
-  /* 今日单词展示 */
-  .word-list {
-    display: flex; gap: 8px; flex-wrap: wrap;
-    margin-top: 6px;
-  }
-  .word-tag {
-    padding: 6px 12px; border-radius: 8px;
-    font-size: 13px; font-weight: 600;
-    background: #eaf2dc; color: #4f6f29;
-  }
-  .word-tag .level {
-    font-size: 10px; opacity: 0.7; margin-left: 4px;
-  }
 
   /* ================= 右侧电子宠物 ================= */
   .pet-panel {
@@ -337,6 +324,7 @@
     <div class="item" data-target="yingyu"><span class="ic">🌱</span>英语<span class="badge" id="b-yingyu">0/2</span></div>
     <div class="item" data-target="huwai"><span class="ic">🏃</span>户外<span class="badge" id="b-huwai">0/2</span></div>
     <div class="item" data-target="zuoxi"><span class="ic">⏰</span>作息<span class="badge" id="b-zuoxi">0/2</span></div>
+    <div class="item" data-target="jiawu"><span class="ic">🏠</span>家务<span class="badge" id="b-jiawu">0/1</span></div>
   </div>
   <div class="footer">
     完成全部任务<br>即可喂食 / 遛弯 🐶
@@ -471,7 +459,7 @@
       <div class="ic">🌱</div>
       <div>
         <div class="t1">英语 · 每日学习</div>
-        <div class="t2">两天一课新概念 + 初中单词每日 3 个</div>
+        <div class="t2">两天一课新概念 + 每日 3 个新单词</div>
       </div>
       <div class="right">已完成 <b id="n-yingyu">0</b>/2</div>
     </div>
@@ -487,8 +475,7 @@
       <div class="ck" onclick="toggle(this)"></div>
       <div class="content">
         <div class="t1">🐣 每日新学 3 个单词</div>
-        <div class="t2" id="today-words">加载中...</div>
-        <div class="word-list" id="word-list"></div>
+        <div class="t2">抄写 · 拼读 · 造句 · 家长听写</div>
       </div>
       <div class="tag">英语</div>
     </div>
@@ -573,6 +560,26 @@
       <div class="tag">作息</div>
     </div>
   </section>
+
+  <!-- 家务 -->
+  <section class="section s-jiawu" id="sec-jiawu">
+    <div class="head">
+      <div class="ic">🏠</div>
+      <div>
+        <div class="t1">家务 · 我是小帮手</div>
+        <div class="t2">每天帮妈妈做一件家务</div>
+      </div>
+      <div class="right">已完成 <b id="n-jiawu">0</b>/1</div>
+    </div>
+    <div class="task" data-key="j1">
+      <div class="ck" onclick="toggle(this)"></div>
+      <div class="content">
+        <div class="t1">�� 每天帮妈妈做一件家务</div>
+        <div class="t2">扫地 / 擦桌子 / 洗碗 / 整理房间 / 倒垃圾</div>
+      </div>
+      <div class="tag">家务</div>
+    </div>
+  </section>
 </main>
 
 <!-- 右侧电子宠物 -->
@@ -652,58 +659,11 @@
 <div class="toast" id="toast">完成啦！</div>
 
 <script>
-  /* ===================== 初中单词库（初一~初三） ===================== */
-  const wordBank = [
-    // 初一
-    {word:"apple",meaning:"苹果",level:"初一"},{word:"book",meaning:"书",level:"初一"},
-    {word:"family",meaning:"家庭",level:"初一"},{word:"happy",meaning:"开心的",level:"初一"},
-    {word:"school",meaning:"学校",level:"初一"},{word:"teacher",meaning:"老师",level:"初一"},
-    {word:"water",meaning:"水",level:"初一"},{word:"friend",meaning:"朋友",level:"初一"},
-    {word:"beautiful",meaning:"美丽的",level:"初一"},{word:"important",meaning:"重要的",level:"初一"},
-    {word:"different",meaning:"不同的",level:"初一"},{word:"breakfast",meaning:"早餐",level:"初一"},
-    {word:"dinner",meaning:"晚餐",level:"初一"},{word:"homework",meaning:"作业",level:"初一"},
-    {word:"weather",meaning:"天气",level:"初一"},{word:"Monday",meaning:"星期一",level:"初一"},
-    {word:"Tuesday",meaning:"星期二",level:"初一"},{word:"Wednesday",meaning:"星期三",level:"初一"},
-    {word:"Thursday",meaning:"星期四",level:"初一"},{word:"Friday",meaning:"星期五",level:"初一"},
-    {word:"music",meaning:"音乐",level:"初一"},{word:"science",meaning:"科学",level:"初一"},
-    {word:"history",meaning:"历史",level:"初一"},{word:"math",meaning:"数学",level:"初一"},
-    {word":"English","meaning":"英语","level":"初一"},
-    // 初二
-    {word:"exercise",meaning:"锻炼",level:"初二"},{word:"practice",meaning:"练习",level:"初二"},
-    {word:"remember",meaning:"记住",level:"初二"},{word:"forget",meaning:"忘记",level:"初二"},
-    {word:"decide",meaning:"决定",level:"初二"},{word:"experience",meaning:"经历",level:"初二"},
-    {word:"environment",meaning:"环境",level:"初二"},{word:"technology",meaning:"技术",level:"初二"},
-    {word:"knowledge",meaning:"知识",level:"初二"},{word:"information",meaning:"信息",level:"初二"},
-    {word:"population",meaning:"人口",level:"初二"},{word:"education",meaning:"教育",level:"初二"},
-    {word:"competition",meaning:"比赛",level:"初二"},{word:"wonderful",meaning:"精彩的",level:"初二"},
-    {word:"necessary",meaning:"必要的",level:"初二"},{word:"temperature",meaning:"温度",level:"初二"},
-    {word:"vacation",meaning:"假期",level:"初二"},{word:"volunteer",meaning:"志愿者",level:"初二"},
-    {word:"success",meaning:"成功",level:"初二"},{word:"surprise",meaning:"惊喜",level:"初二"},
-    {word:"culture",meaning:"文化",level:"初二"},{word:"language",meaning:"语言",level:"初二"},
-    {word:"geography",meaning:"地理",level:"初二"},{word:"biology",meaning:"生物",level:"初二"},
-    {word:"encourage",meaning:"鼓励",level:"初二"},
-    // 初三
-    {word:"achievement",meaning:"成就",level:"初三"},{word:"advantage",meaning:"优势",level:"初三"},
-    {word:"opportunity",meaning:"机会",level:"初三"},{word:"challenge",meaning:"挑战",level:"初三"},
-    {word:"responsibility",meaning:"责任",level:"初三"},{word:"relationship",meaning:"关系",level:"初三"},
-    {word:"communication",meaning:"沟通",level:"初三"},{word:"suggestion",meaning:"建议",level:"初三"},
-    {word:"preparation",meaning:"准备",level:"初三"},{word:"graduation",meaning:"毕业",level:"初三"},
-    {word:"university",meaning:"大学",level:"初三"},{word:"independent",meaning:"独立的",level:"初三"},
-    {word:"confident",meaning:"自信的",level:"初三"},{word:"patient",meaning:"耐心的",level:"初三"},
-    {word:"honest",meaning:"诚实的",level:"初三"},{word:"brave",meaning:"勇敢的",level:"初三"},
-    {word:"discover",meaning:"发现",level:"初三"},{word:"explore",meaning:"探索",level:"初三"},
-    {word:"achieve",meaning:"达到",level:"初三"},{word:"overcome",meaning:"克服",level:"初三"},
-    {word:"succeed",meaning:"成功",level:"初三"},{word:"celebration",meaning:"庆祝",level:"初三"},
-    {word:"tradition",meaning:"传统",level:"初三"},{word:"influence",meaning:"影响",level:"初三"},
-    {word:"respect",meaning:"尊重",level:"初三"}
-  ];
-
   /* ===================== 数据 & 持久化 ===================== */
   const STORAGE_KEY = 'g3-workbuddy-v3';
   const state = {
     tasks: {},
-    pet: { hunger: 50, happy: 50, energy: 50, rewards: 0 },
-    wordIndex: 0   // 单词轮换索引
+    pet: { hunger: 50, happy: 50, energy: 50, rewards: 0 }
   };
 
   function load() {
@@ -721,7 +681,8 @@
     shuxue: ['s1','s2'],
     yingyu: ['e1','e2'],
     huwai:  ['h1','h2'],
-    zuoxi:  ['x1','x2','x3']
+    zuoxi:  ['x1','x2','x3'],
+    jiawu:  ['j1']
   };
 
   function getDone() {
@@ -769,9 +730,6 @@
     const mood = state.pet.happy > 70 ? '汪汪! 谢谢你~' :
                  state.pet.happy > 40 ? '汪~' : '呜…';
     bubble(mood, 1500);
-
-    // 更新今日单词展示
-    renderTodayWords();
   }
 
   function toggle(el) {
@@ -789,32 +747,6 @@
     }
     save();
     updateUI();
-  }
-
-  /* ===================== 每日单词 ===================== */
-  function getTodayWords() {
-    const today = new Date();
-    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
-    const idx = dayOfYear * 3 % wordBank.length;
-    const result = [];
-    for (let i = 0; i < 3; i++) {
-      result.push(wordBank[(idx + i) % wordBank.length]);
-    }
-    return result;
-  }
-
-  function renderTodayWords() {
-    const words = getTodayWords();
-    const desc = document.getElementById('today-words');
-    const list = document.getElementById('word-list');
-    if (desc) {
-      desc.textContent = '抄写 · 造句 · 配图记忆 · 家长听写';
-    }
-    if (list) {
-      list.innerHTML = words.map(w =>
-        `<span class="word-tag">${w.word} · ${w.meaning}<span class="level">[${w.level}]</span></span>`
-      ).join('');
-    }
   }
 
   /* ===================== 小狗叫声音效 ===================== */
@@ -955,7 +887,6 @@
   /* ===================== 初始化 ===================== */
   load();
   setupNCE();
-  renderTodayWords();
   updateUI();
 
   setInterval(() => {
